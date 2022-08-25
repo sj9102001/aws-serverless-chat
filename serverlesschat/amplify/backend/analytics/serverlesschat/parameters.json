@@ -1,0 +1,21 @@
+{
+    "appName": "serverlesschat",
+    "roleName": "pinpointLambdaRole9e9333f7",
+    "cloudformationPolicyName": "cloudformationPolicy9e9333f7",
+    "cloudWatchPolicyName": "cloudWatchPolicy9e9333f7",
+    "pinpointPolicyName": "pinpointPolicy9e9333f7",
+    "authPolicyName": "pinpoint_amplify_9e9333f7",
+    "unauthPolicyName": "pinpoint_amplify_9e9333f7",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    }
+}
