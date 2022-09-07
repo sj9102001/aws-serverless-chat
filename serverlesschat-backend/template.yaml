@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: Serverless Chat Application
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 30
+
+Resources:
+  ChatAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      EndpointConfiguration: REGIONAL
+      Name: serverless-chat-api
+      StageName: test
+      Models:
+        adduser:
+          type: object
+          required:
+            - UserId
+            - Email
+          properties:
+            UserId:
+              type: string
+            Email:
+              type: string
+  UserTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: User
+      PrimaryKey:
+        Name: UserId
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  adduserfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to add new user to User table.
+      CodeUri: ./src/user/add_user.py
+      FunctionName: serverless-chat-adduser
+      Handler: add_user.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        add:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /add-user
+            Method: POST
+            RequestModel:
+              Model: adduser
+              required: true
