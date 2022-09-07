@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:serverlesschat/screens/home.dart';
 
 class ConfirmScreen extends StatefulWidget {
@@ -38,6 +42,20 @@ class _ConfirmScreenState extends State<ConfirmScreen> {
       if (res.isSignUpComplete) {
         await Amplify.Auth.signIn(
             username: data.name!, password: data.password!);
+        final currentUser = await Amplify.Auth.getCurrentUser();
+        //todo:
+        //add user to dynamoDB
+        print('reaches here');
+        final uri = Uri.parse(
+            'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/add-user');
+        final userToDBResponse = await http.post(
+          uri,
+          body: json.encode(
+            {"UserId": currentUser.userId, "Email": data.name},
+          ),
+        );
+
+        print(userToDBResponse);
         Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
       }
     } on AuthException catch (e) {
