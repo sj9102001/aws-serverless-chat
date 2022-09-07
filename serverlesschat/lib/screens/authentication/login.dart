@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:serverlesschat/screens/confirm-reset.dart';
-import 'package:serverlesschat/screens/confirm.dart';
+import 'package:serverlesschat/screens/authentication/confirm-reset.dart';
+import 'package:serverlesschat/screens/authentication/confirm.dart';
 import 'package:serverlesschat/screens/home.dart';
 
 class Login extends StatefulWidget {

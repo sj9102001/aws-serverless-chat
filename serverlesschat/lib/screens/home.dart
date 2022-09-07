@@ -1,7 +1,7 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 
-import '/screens/login.dart';
+import 'authentication/login.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -30,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     print('..............Home Page Rendered..............');
-
     return Scaffold(
       appBar: AppBar(title: Text('Home'), actions: [
         MaterialButton(
@@ -47,7 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
         )
       ]),
       body: Center(
-        child: _user == null ? Text('No User') : Text(_user!.userId),
+        child: _user == null
+            ? Text('No User')
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text(_user!.userId), Text(_user!.username)],
+              ),
       ),
     );
   }

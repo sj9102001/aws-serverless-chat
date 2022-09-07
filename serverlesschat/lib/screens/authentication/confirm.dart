@@ -41,6 +41,7 @@ class _ConfirmScreenState extends State<ConfirmScreen> {
         Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
       }
     } on AuthException catch (e) {
+      print(e);
       _showError(context, e.message);
     }
   }

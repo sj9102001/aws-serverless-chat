@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:serverlesschat/screens/login.dart';
+import 'package:serverlesschat/screens/authentication/login.dart';
 
 class ConfirmResetScreen extends StatefulWidget {
   static const routeName = '/confirm-reset';

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:flutter_login/flutter_login.dart';
-import 'package:serverlesschat/screens/confirm-reset.dart';
-import 'package:serverlesschat/screens/home.dart';
 
 import '../../amplifyconfiguration.dart';
 
-import './screens/login.dart';
-import './screens/confirm.dart';
+import 'screens/authentication/confirm-reset.dart';
+import 'screens/home.dart';
+import 'screens/authentication/login.dart';
+import 'screens/authentication/confirm.dart';
+import 'screens/landing.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,10 +24,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _amplifyConfigured = false;
-  AuthUser? _user;
   @override
   void initState() {
-    // TODO: implement initState
     _configureAmplify();
   }
 
@@ -59,12 +57,13 @@ class _MyAppState extends State<MyApp> {
         body: Container(
           child: Center(
             child: _amplifyConfigured == true
-                ? const Login()
+                ? LandingPage()
                 : const CircularProgressIndicator(),
           ),
         ),
       ),
       routes: {
+        LandingPage.routeName: (ctx) => LandingPage(),
         Login.routeName: (ctx) => Login(),
         ConfirmScreen.routeName: (ctx) => ConfirmScreen(),
         ConfirmResetScreen.routeName: (ctx) => ConfirmResetScreen(),
