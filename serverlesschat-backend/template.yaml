@@ -39,7 +39,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Description: Function to add new user to User table.
-      CodeUri: ./src/user/add_user.py
+      CodeUri: ./src/add_user.py
       FunctionName: serverless-chat-adduser
       Handler: add_user.lambda_handler
       Policies:
@@ -55,3 +55,54 @@ Resources:
             RequestModel:
               Model: adduser
               required: true
+  fetchalluserfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to fetch all users from User table
+      CodeUri: ./src/fetch_users.py
+      FunctionName: serverless-chat-fetchalluser
+      Handler: fetch_users.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        fetchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /fetch-users
+            Method: GET
+  updateuserfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to update user information
+      CodeUri: ./src/update_user.py
+      FunctionName: serverless-chat-updateuser
+      Handler: update_user.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        fetchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /update-user
+            Method: POST
+  userdetailfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to fetch user information
+      CodeUri: ./src/user_details.py
+      FunctionName: serverless-chat-userdetails
+      Handler: user_details.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        fetchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /user-details
+            Method: POST

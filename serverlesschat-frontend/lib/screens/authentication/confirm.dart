@@ -1,31 +1,31 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:serverlesschat/screens/authentication/login.dart';
 
-class ConfirmResetScreen extends StatefulWidget {
-  static const routeName = '/confirm-reset';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:serverlesschat/screens/home.dart';
+
+// ignore: use_key_in_widget_constructors
+class ConfirmScreen extends StatefulWidget {
+  static const routeName = '/confirm';
   @override
-  State<ConfirmResetScreen> createState() => ConfirmResetScreenState();
+  State<ConfirmScreen> createState() => _ConfirmScreenState();
 }
 
-class ConfirmResetScreenState extends State<ConfirmResetScreen> {
+class _ConfirmScreenState extends State<ConfirmScreen> {
   final _controller = TextEditingController();
-  final _passwordController = TextEditingController();
-
   bool _isEnabled = false;
-  bool _obscureText = true;
 
   @override
   void initState() {
+    // ignore: todo
     // TODO: implement initState
     super.initState();
     _controller.addListener(() {
-      setState(() {
-        _isEnabled = _controller.text.isNotEmpty;
-      });
-    });
-    _passwordController.addListener(() {
       setState(() {
         _isEnabled = _controller.text.isNotEmpty;
       });
@@ -34,28 +34,39 @@ class ConfirmResetScreenState extends State<ConfirmResetScreen> {
 
   @override
   void dispose() {
+    // ignore: todo
     // TODO: implement dispose
     super.dispose();
     _controller.dispose();
-    _passwordController.dispose();
   }
 
-  void resetPassword(BuildContext context, LoginData data, String code,
-      String password) async {
+  void _verifyCode(BuildContext context, SignupData? data, String code) async {
     try {
-      final res = await Amplify.Auth.confirmResetPassword(
-          username: data.name, newPassword: password, confirmationCode: code);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            'Password changed successfully, please login!',
-            style: TextStyle(fontSize: 15),
+      final res = await Amplify.Auth.confirmSignUp(
+          username: data!.name!, confirmationCode: code);
+      if (res.isSignUpComplete) {
+        await Amplify.Auth.signIn(
+            username: data.name!, password: data.password!);
+        final currentUser = await Amplify.Auth.getCurrentUser();
+        //todo:
+        //add user to dynamoDB
+        final uri = Uri.parse(
+            'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/add-user');
+        final userToDBResponse = await http.post(
+          uri,
+          body: json.encode(
+            {"UserId": currentUser.userId, "Email": data.name},
           ),
-        ),
-      );
-      Navigator.of(context).pushReplacementNamed(Login.routeName);
+        );
+
+        // ignore: avoid_print
+        print(userToDBResponse);
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      }
     } on AuthException catch (e) {
+      // ignore: avoid_print
+      print(e);
       _showError(context, e.message);
     }
   }
@@ -69,15 +80,31 @@ class ConfirmResetScreenState extends State<ConfirmResetScreen> {
     );
   }
 
+  void _resendCode(BuildContext context, SignupData data) async {
+    try {
+      await Amplify.Auth.resendSignUpCode(username: data.name!);
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Confirmation Code Resent.'),
+          backgroundColor: Colors.blueAccent,
+        ),
+      );
+    } on AuthException catch (e) {
+      _showError(context, e.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('..............Confirm Reset Page Rendered..............');
-    final signupData = ModalRoute.of(context)?.settings.arguments as LoginData;
+    log('..............Confirm Page Rendered..............');
+    final signupData =
+        ModalRoute.of(context)?.settings.arguments as SignupData?;
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body: Center(
         child: SafeArea(
-            minimum: EdgeInsets.symmetric(horizontal: 20),
+            minimum: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -110,38 +137,7 @@ class ConfirmResetScreenState extends State<ConfirmResetScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
                         const SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: _obscureText,
-                          decoration: InputDecoration(
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 4),
-                            prefixIcon: Icon(Icons.lock),
-                            labelText: 'New Password',
-                            suffixIcon: GestureDetector(
-                              child: Icon(_obscureText
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                              onTap: () {
-                                setState(() {
-                                  _obscureText = !_obscureText;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(40),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
                           height: 10,
                         ),
                         MaterialButton(
@@ -149,17 +145,24 @@ class ConfirmResetScreenState extends State<ConfirmResetScreen> {
                           color: Theme.of(context).primaryColor,
                           onPressed: _isEnabled
                               ? () {
-                                  resetPassword(
-                                      context,
-                                      signupData,
-                                      _controller.text,
-                                      _passwordController.text);
+                                  _verifyCode(
+                                      context, signupData, _controller.text);
                                 }
                               : null,
                           disabledColor: Colors.deepPurple.shade100,
-                          child: Text(
-                            'Reset',
+                          child: const Text(
+                            'Verify',
                             style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ),
+                        MaterialButton(
+                          elevation: 4,
+                          onPressed: () {
+                            _resendCode(context, signupData!);
+                          },
+                          child: const Text(
+                            'Resend Code',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                         ),
                       ],
