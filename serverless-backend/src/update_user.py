@@ -40,7 +40,7 @@ def lambda_handler(event, context):
         }
 
     userId = data.get('UserId')
-    name = data.get('Name')
+    name = data.get('Name').lower()
     resp = {}
 
     try:

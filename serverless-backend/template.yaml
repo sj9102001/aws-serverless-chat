@@ -35,6 +35,26 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+  ChatRoomTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: ChatRoom
+      PrimaryKey:
+        Name: ChatRoomId
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  AddFriendTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: AddFriend
+      PrimaryKey:
+        Name: UserId
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
   adduserfunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -83,7 +103,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       Events:
-        fetchAll:
+        updateuser:
           Type: Api
           Properties:
             RestApiId: !Ref ChatAPI
@@ -100,9 +120,64 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       Events:
-        fetchAll:
+        userdetail:
           Type: Api
           Properties:
             RestApiId: !Ref ChatAPI
             Path: /user-details
+            Method: POST
+  searchusersfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to search users from emailId or name
+      CodeUri: ./src/search_users.py
+      FunctionName: serverless-chat-searchusers
+      Handler: search_users.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        searchusers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /search-users/{query}
+            Method: GET
+  sendfriendrequestfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to send friend request to a user.
+      CodeUri: ./src/send_friend_request.py
+      FunctionName: serverless-chat-sendfriendrequest
+      Handler: send_friend_request.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AddFriendTable
+      Events:
+        sendfriendrequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /send-friend-request
+            Method: POST
+  acceptfriendrequestfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Function to accept friend request.
+      CodeUri: ./src/accept_friend_request.py
+      FunctionName: serverless-chat-acceptfriendrequest
+      Handler: accept_friend_request.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AddFriendTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ChatRoomTable
+      Events:
+        acceptfriendrequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ChatAPI
+            Path: /accept-friend-request
             Method: POST
