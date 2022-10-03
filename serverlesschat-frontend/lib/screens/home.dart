@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:serverlesschat/screens/app/homepage.dart';
 
 import '../providers/users.dart';
-import 'app/add_friend_page.dart';
-import 'app/profile_page.dart';
+import 'app/add_friend/add_friend_page.dart';
+import 'app/profile/profile_page.dart';
 import '../widgets/custom_bottomnavbar.dart';
 import '../providers/websocket_provider.dart';
 
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onChangePageIndex: changeCurrentPageIndex),
         body: IndexedStack(
           index: currentPageIndex,
-          children: [HomePage(), const AddFriendPage(), ProfilePage()],
+          children: [HomePage(), AddFriendPage(), ProfilePage()],
         ));
   }
 }

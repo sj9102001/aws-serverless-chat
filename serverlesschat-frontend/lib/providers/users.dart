@@ -20,6 +20,31 @@ class Users with ChangeNotifier {
     return [..._users];
   }
 
+  Future<List<User>> searchUsers(String query) async {
+    try {
+      final url = Uri.parse(
+          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/search-users/${query}');
+      log('Making API Call - /search-users');
+      List<User> searchedUsersList = [];
+      final response = await http.get(url);
+
+      final responseData = json.decode(response.body);
+      if (responseData.length == 0) {
+        throw Exception('No user found by the name: ${query}');
+      } else {
+        responseData.forEach((element) {
+          searchedUsersList
+              .add(User(email: element['Email'], userId: element['UserId']));
+        });
+        print(searchedUsersList);
+        return searchedUsersList;
+      }
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
   Future<void> fetchCurrentUserDetails() async {
     try {
       final url = Uri.parse(
@@ -50,10 +75,13 @@ class Users with ChangeNotifier {
 
   Future<void> updateUserInformation(String name) async {
     try {
-      // final url = Uri.parse(
-      // 'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/update-user');
-      // final response = await http.post(url,
-      // body: json.encode({'UserId': _loggedInUser!.userId, 'Name': name}));
+      final url = Uri.parse(
+          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/update-user');
+      final response = await http.post(url,
+          body: json.encode({'UserId': _loggedInUser!.userId, 'Name': name}));
+      if (response.statusCode >= 400) {
+        throw Exception('Updating user failed');
+      }
       _loggedInUser!.name = name;
       notifyListeners();
     } catch (e) {
@@ -70,6 +98,7 @@ class Users with ChangeNotifier {
       final data = json.decode(response.body);
       List<User> userList = [];
       data.forEach((currUser) {
+        print(currUser['Name']);
         userList.add(
           User(
               email: currUser['Email'],

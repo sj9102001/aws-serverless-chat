@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:serverlesschat/providers/chats.dart';
 import 'package:serverlesschat/providers/users.dart';
 import 'package:serverlesschat/providers/websocket_provider.dart';
-import 'package:serverlesschat/screens/app/chat.dart';
+import 'package:serverlesschat/screens/app/chat/chat.dart';
 
 import '../../amplifyconfiguration.dart';
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serverlesschat/models/user.dart';
 import 'package:serverlesschat/providers/users.dart';
-import 'package:serverlesschat/screens/app/chat.dart';
+import 'package:serverlesschat/screens/app/chat/chat.dart';
 import 'package:serverlesschat/screens/authentication/login.dart';
 
 // ignore: must_be_immutable, use_key_in_widget_constructors
@@ -16,19 +16,6 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           title: const Text('Home'),
-          actions: [
-            MaterialButton(
-              onPressed: () {
-                Amplify.Auth.signOut().then((_) {
-                  Navigator.of(context).pushReplacementNamed(Login.routeName);
-                });
-              },
-              child: const Icon(
-                Icons.logout,
-                color: Colors.white,
-              ),
-            )
-          ],
         ),
         body: userData.isEmpty
             ? const Center(
@@ -47,7 +34,9 @@ class HomePage extends StatelessWidget {
                           child: Text('SJ'),
                         ),
                         title: Text(userData[index].name != null
-                            ? userData[index].name.toString()
+                            ? userData[index].name!.isEmpty
+                                ? userData[index].email.toString()
+                                : userData[index].name.toString()
                             : userData[index].email.toString()),
                         subtitle: const Text('Latest message'),
                         onTap: () {
