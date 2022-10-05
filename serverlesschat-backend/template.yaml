@@ -45,10 +45,10 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-  AddFriendTable:
+  FriendTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
-      TableName: AddFriend
+      TableName: Friend
       PrimaryKey:
         Name: UserId
         Type: String
@@ -58,13 +58,15 @@ Resources:
   adduserfunction:
     Type: AWS::Serverless::Function
     Properties:
-      Description: Function to add new user to User table.
+      Description: Function to add new user to User table and Friend tabe.
       CodeUri: ./src/add_user.py
       FunctionName: serverless-chat-adduser
       Handler: add_user.lambda_handler
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FriendTable
       Events:
         add:
           Type: Api
@@ -75,23 +77,25 @@ Resources:
             RequestModel:
               Model: adduser
               required: true
-  fetchalluserfunction:
+  fetchuserfriendsfunction:
     Type: AWS::Serverless::Function
     Properties:
-      Description: Function to fetch all users from User table
-      CodeUri: ./src/fetch_users.py
-      FunctionName: serverless-chat-fetchalluser
-      Handler: fetch_users.lambda_handler
+      Description: Function to fetch user friends information from Friend table
+      CodeUri: ./src/fetch_friends.py
+      FunctionName: serverless-chat-fetch-friends
+      Handler: fetch_friends.lambda_handler
       Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FriendTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
       Events:
-        fetchAll:
+        fetchFriends:
           Type: Api
           Properties:
             RestApiId: !Ref ChatAPI
-            Path: /fetch-users
-            Method: GET
+            Path: /fetch-friends
+            Method: POST
   updateuserfunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -152,7 +156,7 @@ Resources:
       Handler: send_friend_request.lambda_handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref AddFriendTable
+            TableName: !Ref FriendTable
       Events:
         sendfriendrequest:
           Type: Api
@@ -169,9 +173,7 @@ Resources:
       Handler: accept_friend_request.lambda_handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref AddFriendTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
+            TableName: !Ref FriendTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ChatRoomTable
       Events:

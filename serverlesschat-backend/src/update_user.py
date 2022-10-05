@@ -41,6 +41,7 @@ def lambda_handler(event, context):
 
     userId = data.get('UserId')
     name = data.get('Name').lower()
+    bio = data.get('Bio')
     resp = {}
 
     try:
@@ -49,12 +50,14 @@ def lambda_handler(event, context):
             Key={
                 'UserId': userId
             },
-            UpdateExpression='SET #nm = :name',
+            UpdateExpression='SET #nm = :name, #bi = :bio',
             ExpressionAttributeValues={
-                ':name': name
+                ':name': name,
+                ':bio': bio
             },
             ExpressionAttributeNames={
-                "#nm": "Name"
+                "#nm": "Name",
+                "#bi": "Bio"
             }
         )
         statusCode = 200

@@ -6,6 +6,9 @@ dynamo = boto3.resource('dynamodb')
 table_name = 'User'
 user_table = dynamo.Table(table_name)
 
+friend_table_name = 'Friend'
+friend_table = dynamo.Table(friend_table_name)
+
 def add_user(data):
     resp = {}
 
@@ -32,6 +35,13 @@ def add_user(data):
         response = user_table.put_item(
             TableName=table_name,
             Item=params,
+            ConditionExpression=f"attribute_not_exists(UserId)",
+        )
+        res = friend_table.put_item(
+            TableName=friend_table_name,
+            Item={
+                'UserId': data.get('UserId')
+            },
             ConditionExpression=f"attribute_not_exists(UserId)",
         )
         statusCode = 201

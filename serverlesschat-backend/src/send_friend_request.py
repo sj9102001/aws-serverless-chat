@@ -3,14 +3,14 @@ import boto3
 import botocore.exceptions
 
 dynamo = boto3.resource('dynamodb')
-table_name = 'AddFriend'
-add_friend_table = dynamo.Table(table_name)
+table_name = 'Friend'
+friend_table = dynamo.Table(table_name)
 
 
 def add_to_received_requests(requestSentTo, requestSentBy):
     # add requestSentBy to requestSentTo's receivedRequest attribute
     try:
-        add_friend_table.update_item(
+        friend_table.update_item(
             TableName=table_name,
             Key={
                 'UserId': requestSentTo
@@ -40,7 +40,7 @@ def add_to_received_requests(requestSentTo, requestSentBy):
 def add_to_sent_requests(requestSentTo, requestSentBy):
     # add requestSentTo to requestSentBy's sentRequests attribute
     try:
-        add_friend_table.update_item(
+        friend_table.update_item(
             TableName=table_name,
             Key={
                 'UserId': requestSentBy
