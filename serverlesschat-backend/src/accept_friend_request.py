@@ -1,5 +1,6 @@
 import json
 import uuid
+
 import boto3
 import botocore.exceptions
 
@@ -11,14 +12,25 @@ friend_table = dynamo.Table(friend_table_name)
 chatroom_table_name = 'ChatRoom'
 chatroom_table = dynamo.Table(chatroom_table_name)
 
+
 def bad_response():
     return {
         'statusCode': 400,
-        'body': json.dumps({'Response':'Failed while accepting request, try again later!'}),
+        'body': json.dumps({'Response': 'Failed while accepting request, try again later!'}),
         'headers': {
-            'Content-Type':'application/json'
+            'Content-Type': 'application/json'
         }
     }
+
+
+def delete_chatroom(chatroomId):
+    chatroom_table.delete_item(
+        TableName=chatroom_table_name,
+        Item={
+            'ChatRoomId': chatroomId
+        }
+    )
+
 
 def create_chatroom(userOne, userTwo):
     # create chatroom for both the users and store the id
@@ -54,22 +66,24 @@ def update_user_friendlist(userOneId, userTwoId, chatroomId):
             },
             UpdateExpression='SET #fl = list_append(if_not_exists(#fl, :empty_list), :requestSentBy)',
             ExpressionAttributeValues={
-                ':requestSentBy': [{'UserId':userTwoId,'ChatRoomId':chatroomId}],
+                ':requestSentBy': [{'UserId': userTwoId, 'ChatRoomId': chatroomId}],
                 ':empty_list':  []
             },
             ExpressionAttributeNames={
                 "#fl": "FriendList"
             }
         )
-        return {'toContinue':True}
+        return {'toContinue': True}
     except botocore.exceptions.ClientError as e:
+        # delete chat room
+        delete_chatroom(chatroomId)
         print(e)
-        return {'toContinue':False}
+        return {'toContinue': False}
     except:
-        return {'toContinue':False}
+        return {'toContinue': False}
 
 
-def remove_from_list(userOne,userTwo,remove_from):
+def remove_from_list(userOne, userTwo, remove_from, chatroomId):
     try:
         r = friend_table.get_item(
             TableName=friend_table_name,
@@ -82,7 +96,7 @@ def remove_from_list(userOne,userTwo,remove_from):
         else:
             response_list = r['Item']['ReceivedRequests']
         print(response_list)
-        
+
         request_index = response_list.index(userTwo)
         print(request_index)
 
@@ -98,10 +112,12 @@ def remove_from_list(userOne,userTwo,remove_from):
             },
             UpdateExpression=query
         )
-        return {'toContinue':True}
+        return {'toContinue': True}
     except botocore.exceptions.ClientError as e:
+        # delete chat room
+        delete_chatroom(chatroomId)
         print(e)
-        return {'toContinue':False}
+        return {'toContinue': False}
 
 
 def lambda_handler(event, context):
@@ -111,14 +127,31 @@ def lambda_handler(event, context):
     if data.get('user') is None or data.get('acceptedUser') is None:
         return {
             'statusCode': 400,
-            'body': json.dumps({'Response':'Bad request'}),
+            'body': json.dumps({'Response': 'Bad request'}),
             'headers': {
-                'Content-Type':'application/json'
+                'Content-Type': 'application/json'
             }
         }
 
     acceptorUserId = data.get('user')
     accepteeUserId = data.get('acceptedUser')
+
+    acceptorUserResponse = friend_table.get_item(
+        TableName=friend_table_name,
+        Key={
+            'UserId': acceptorUserId
+        }
+    )
+
+    for friend in acceptorUserResponse["Item"]["FriendList"]:
+        if accepteeUserId in friend['UserId']:
+            return {
+                'statusCode': 200,
+                'body': json.dumps({"Response": "User already in friendlist"}),
+                'headers': {
+                    'Content-Type': 'application/json'
+                }
+            }
 
     toContinue = True
 
@@ -132,27 +165,31 @@ def lambda_handler(event, context):
 
     # Updating both the users friendlist
     if toContinue == True:
-        update_user_friendlist_response = update_user_friendlist(acceptorUserId, accepteeUserId, chatroomId)
+        update_user_friendlist_response = update_user_friendlist(
+            acceptorUserId, accepteeUserId, chatroomId)
         toContinue = update_user_friendlist_response.get('toContinue')
     else:
         return bad_response()
 
     if toContinue == True:
-        update_user_friendlist_response = update_user_friendlist(accepteeUserId, acceptorUserId, chatroomId)
+        update_user_friendlist_response = update_user_friendlist(
+            accepteeUserId, acceptorUserId, chatroomId)
         toContinue = update_user_friendlist_response.get('toContinue')
     else:
         return bad_response()
 
-    # Remove "acceptorUserId" from sentRequest of "accepteeUserId"   
+    # Remove "acceptorUserId" from sentRequest of "accepteeUserId"
     if toContinue == True:
-        remove_from_sent_response = remove_from_list(accepteeUserId,acceptorUserId,'SENT_REQUESTS')
+        remove_from_sent_response = remove_from_list(
+            accepteeUserId, acceptorUserId, 'SENT_REQUESTS', chatroomId)
         toContinue = remove_from_sent_response.get('toContinue')
     else:
         return bad_response()
 
     # Remove "accepteeUserId" from ReceivedRequests of "acceptorUserId"
     if toContinue == True:
-        remove_from_received_response = remove_from_list(acceptorUserId,accepteeUserId,"RECEIVED_REQUESTS")
+        remove_from_received_response = remove_from_list(
+            acceptorUserId, accepteeUserId, "RECEIVED_REQUESTS", chatroomId)
     else:
         return bad_response()
 
@@ -160,9 +197,9 @@ def lambda_handler(event, context):
         return bad_response()
 
     return {
-        'statusCode':200, 
-        'body':json.dumps({"Response":"Accepted friend request succesfully"}),
-        'headers':{
-            'Content-Type':'application/json'
+        'statusCode': 200,
+        'body': json.dumps({"Response": "Accepted friend request succesfully"}),
+        'headers': {
+            'Content-Type': 'application/json'
         }
     }

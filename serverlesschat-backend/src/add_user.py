@@ -40,7 +40,10 @@ def add_user(data):
         res = friend_table.put_item(
             TableName=friend_table_name,
             Item={
-                'UserId': data.get('UserId')
+                'UserId': data.get('UserId'),
+                'FriendList': [],
+                'ReceivedRequests': [],
+                'SentRequests': []
             },
             ConditionExpression=f"attribute_not_exists(UserId)",
         )

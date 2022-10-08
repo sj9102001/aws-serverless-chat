@@ -83,8 +83,31 @@ def lambda_handler(event, context):
 
     requestSentTo = data['sentTo']
     requestSentBy = data['sentBy']
+
+
+    # Check if friend request is already sent
+    check_response = friend_table.get_item(
+        TableName=table_name,
+        Key={
+            "UserId": requestSentTo
+        }
+    )
+
+    print(check_response)
+    if requestSentBy in check_response['Item']["ReceivedRequests"]:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({"Response":"Friend request is already sent to the user"}),
+            'headers':{
+                'Content-Type':'application/json'
+            }
+        }
+
+
     # From PARAMS, ADD sentBy to ReceivedRequests of sentTo
     # From PARAMS, ADD sentTo to SentRequests of sentBy 
+
+
 
     resp = {}
     response_atrr = add_to_received_requests(requestSentTo, requestSentBy)
