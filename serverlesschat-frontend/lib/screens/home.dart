@@ -3,7 +3,9 @@ import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:serverlesschat/screens/app/homepage.dart';
+
+import '../../../providers/friends.dart';
+import '../../../screens/app/homepage.dart';
 
 import '../providers/users.dart';
 import 'app/add_friend/add_friend_page.dart';
@@ -27,7 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<WebsocketProvider>(context, listen: false).connectToWs();
-      Provider.of<Users>(context, listen: false).fetchAllUser().catchError((e) {
+      Provider.of<Friends>(context, listen: false)
+          .fetchFriendsInformation()
+          .catchError((e) {
         log(e);
       });
       Provider.of<Users>(context, listen: false)
@@ -61,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onChangePageIndex: changeCurrentPageIndex),
         body: IndexedStack(
           index: currentPageIndex,
-          children: [HomePage(), AddFriendPage(), ProfilePage()],
+          children: [HomePage(), const AddFriendPage(), ProfilePage()],
         ));
   }
 }

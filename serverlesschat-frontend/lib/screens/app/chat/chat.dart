@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:serverlesschat/models/chat.dart';
 
-import 'package:serverlesschat/models/user.dart';
+import '../../../models/chat.dart';
+import '../../../models/user.dart';
 
-import 'package:serverlesschat/providers/chats.dart';
-import 'package:serverlesschat/providers/websocket_provider.dart';
+import '../../../providers/chats.dart';
+import '../../../providers/websocket_provider.dart';
 
 // ignore: use_key_in_widget_constructors
 class ChatScreen extends StatefulWidget {

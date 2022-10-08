@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:serverlesschat/screens/authentication/login.dart';
+
+import '../../../screens/authentication/login.dart';
 
 // ignore: use_key_in_widget_constructors
 class ConfirmResetScreen extends StatefulWidget {

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:serverlesschat/screens/authentication/confirm_reset.dart';
-import 'package:serverlesschat/screens/authentication/confirm.dart';
-import 'package:serverlesschat/screens/home.dart';
+
+import '../../../screens/authentication/confirm_reset.dart';
+import '../../../screens/authentication/confirm.dart';
+import '../../../screens/home.dart';
 
 class Login extends StatefulWidget {
   static const routeName = '/login';

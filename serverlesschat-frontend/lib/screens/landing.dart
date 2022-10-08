@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:serverlesschat/screens/home.dart';
-import 'package:serverlesschat/screens/authentication/login.dart';
+
+import '../../../screens/home.dart';
+import '../../../screens/authentication/login.dart';
 
 // ignore: use_key_in_widget_constructors
 class LandingPage extends StatefulWidget {

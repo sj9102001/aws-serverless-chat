@@ -1,12 +1,12 @@
+import 'package:flutter/cupertino.dart';
+import 'package:cron/cron.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+
 import 'dart:convert';
+import 'dart:io';
 import 'dart:developer';
 
-import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:io';
-
-import 'package:cron/cron.dart';
-import 'package:serverlesschat/models/chat.dart';
+import '/models/chat.dart';
 
 class WebsocketProvider with ChangeNotifier {
   WebSocket? socketChannel;

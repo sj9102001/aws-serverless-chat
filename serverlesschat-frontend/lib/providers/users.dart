@@ -14,29 +14,27 @@ class Users with ChangeNotifier {
     return _loggedInUser;
   }
 
-  List<User> _users = [];
-
-  List<User> get users {
-    return [..._users];
-  }
-
   Future<List<User>> searchUsers(String query) async {
     try {
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/search-users/${query}');
+          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/search-users/$query');
       log('Making API Call - /search-users');
       List<User> searchedUsersList = [];
       final response = await http.get(url);
 
       final responseData = json.decode(response.body);
       if (responseData.length == 0) {
-        throw Exception('No user found by the name: ${query}');
+        throw Exception('No user found by the name: $query');
       } else {
         responseData.forEach((element) {
-          searchedUsersList
-              .add(User(email: element['Email'], userId: element['UserId']));
+          searchedUsersList.add(
+            User(
+                email: element['Email'],
+                userId: element['UserId'],
+                name: element.containsKey("Name") ? element["Name"] : null,
+                bio: element.containsKey("Bio") ? element["Bio"] : null),
+          );
         });
-        print(searchedUsersList);
         return searchedUsersList;
       }
     } catch (e) {
@@ -64,6 +62,7 @@ class Users with ChangeNotifier {
         email: data["Email"].toString(),
         userId: data["UserId"].toString(),
         name: data.containsKey("Name") ? data["Name"] : null,
+        bio: data.containsKey("Bio") ? data["Bio"] : null,
       );
       _loggedInUser = user;
       notifyListeners();
@@ -73,43 +72,20 @@ class Users with ChangeNotifier {
     }
   }
 
-  Future<void> updateUserInformation(String name) async {
+  Future<void> updateUserInformation(String name, String bio) async {
     try {
       final url = Uri.parse(
           'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/update-user');
       final response = await http.post(url,
-          body: json.encode({'UserId': _loggedInUser!.userId, 'Name': name}));
+          body: json.encode(
+              {'UserId': _loggedInUser!.userId, 'Name': name, 'Bio': bio}));
       if (response.statusCode >= 400) {
-        throw Exception('Updating user failed');
+        throw Exception('Updating user failed, please try again');
       }
       _loggedInUser!.name = name;
+      _loggedInUser!.bio = bio;
       notifyListeners();
     } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> fetchAllUser() async {
-    try {
-      final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/fetch-users');
-      log('Making API Call - /fetch-users');
-      final response = await http.get(url);
-      final data = json.decode(response.body);
-      List<User> userList = [];
-      data.forEach((currUser) {
-        print(currUser['Name']);
-        userList.add(
-          User(
-              email: currUser['Email'],
-              userId: currUser['UserId'],
-              name: currUser['Name']),
-        );
-      });
-      _users = userList;
-      notifyListeners();
-    } catch (e) {
-      log(e.toString(), level: 2000);
       rethrow;
     }
   }

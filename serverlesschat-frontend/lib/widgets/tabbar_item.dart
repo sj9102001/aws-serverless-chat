@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class CustomTabItem extends StatelessWidget {
   String headline;
 
-  CustomTabItem({required this.headline});
+  CustomTabItem({Key? key, required this.headline}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Text(
           headline,
-          style: TextStyle(fontSize: 17),
+          style: const TextStyle(fontSize: 17),
         ),
       ),
     );

@@ -1,11 +1,17 @@
+import 'package:flutter/material.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:provider/provider.dart';
+
 import 'dart:developer';
 
-import 'package:amplify_flutter/amplify_flutter.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:serverlesschat/screens/authentication/login.dart';
+import '../../../models/user.dart';
 
 import '../../../providers/users.dart';
+
+import '../../../screens/app/profile/edit_profile_page.dart';
+import '../../../screens/authentication/login.dart';
+
+import '../../../widgets/profile_widget.dart';
 
 // ignore: use_key_in_widget_constructors
 class ProfilePage extends StatefulWidget {
@@ -14,77 +20,53 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  Future<void> updateUserInformation(Users userProvider, String name) async {
-    try {
-      await userProvider.updateUserInformation(name);
-    } catch (e) {
-      _showError(context, 'Update user failed');
-    }
+  void _signOut(BuildContext ctx) {
+    Amplify.Auth.signOut().then((_) {
+      Navigator.of(ctx).pushReplacementNamed(Login.routeName);
+    });
   }
 
-  void _showError(BuildContext context, String contentText) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(contentText),
-        backgroundColor: Colors.red,
-      ),
-    );
+  void _viewEditPage(BuildContext ctx, User userData) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => EditProfilePage(userData: userData)));
   }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<Users>(context);
     log('Profile Page Runs');
-    final nameController = TextEditingController(
-        text: Provider.of<Users>(context).loggedInUser!.name);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Setting'),
         actions: [
-          MaterialButton(
-            onPressed: () {
-              Amplify.Auth.signOut().then((_) {
-                Navigator.of(context).pushReplacementNamed(Login.routeName);
-              });
-            },
-            child: const Icon(
-              Icons.logout,
-              color: Colors.white,
+          IconButton(
+            onPressed: () => _viewEditPage(context, userProvider.loggedInUser!),
+            icon: const Icon(Icons.edit, color: Colors.white),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          IconButton(
+            onPressed: () => _signOut(context),
+            icon: const Icon(Icons.logout, color: Colors.white),
+          ),
+        ],
+      ),
+      body: ListView(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(2),
+            // null check operator used on a null value
+            child: Profile(
+              userData: userProvider.loggedInUser!,
+              isLoggedInUserProfile: true,
+              onPressedHandler: () {},
+              showAcceptFriendButton: false,
             ),
           )
         ],
       ),
-      body: Column(children: [
-        Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.deepPurple, width: 2),
-                borderRadius: const BorderRadius.all(Radius.circular(20))),
-            margin: const EdgeInsets.all(10),
-            padding: const EdgeInsets.all(2),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Full Name',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(10),
-                    ),
-                    controller: nameController,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () =>
-                      updateUserInformation(userProvider, nameController.text),
-                  icon: const Icon(Icons.save),
-                  color: Theme.of(context).primaryColor,
-                ),
-              ],
-            )),
-        Expanded(
-          child: Container(),
-        ),
-      ]),
     );
   }
 }

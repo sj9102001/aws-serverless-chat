@@ -1,17 +1,21 @@
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:serverlesschat/models/user.dart';
-import 'package:serverlesschat/providers/users.dart';
-import 'package:serverlesschat/screens/app/chat/chat.dart';
-import 'package:serverlesschat/screens/authentication/login.dart';
+
+import '../../../models/user.dart';
+import '../../../providers/friends.dart';
+import '../../../screens/app/chat/chat.dart';
+import '../../../widgets/custom_list_tile.dart';
 
 // ignore: must_be_immutable, use_key_in_widget_constructors
 class HomePage extends StatelessWidget {
   List<User> userData = [];
+  void _onTap(BuildContext ctx, User userData) {
+    Navigator.of(ctx).pushNamed(ChatScreen.routeName, arguments: userData);
+  }
+
   @override
   Widget build(BuildContext context) {
-    userData = Provider.of<Users>(context).users;
+    userData = Provider.of<Friends>(context).friendList;
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -26,23 +30,11 @@ class HomePage extends StatelessWidget {
                 itemBuilder: ((context, index) => Container(
                       decoration: const BoxDecoration(
                           border: Border(bottom: BorderSide())),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(10),
-                        tileColor: Colors.white,
-                        leading: const CircleAvatar(
-                          radius: 20,
-                          child: Text('SJ'),
-                        ),
-                        title: Text(userData[index].name != null
-                            ? userData[index].name!.isEmpty
-                                ? userData[index].email.toString()
-                                : userData[index].name.toString()
-                            : userData[index].email.toString()),
-                        subtitle: const Text('Latest message'),
-                        onTap: () {
-                          Navigator.of(context).pushNamed(ChatScreen.routeName,
-                              arguments: userData[index]);
-                        },
+                      child: CustomListTile(
+                        email: userData[index].email,
+                        name: userData[index].name,
+                        userData: userData[index],
+                        onTap: () => _onTap(context, userData[index]),
                       ),
                     )),
                 itemCount: userData.length,

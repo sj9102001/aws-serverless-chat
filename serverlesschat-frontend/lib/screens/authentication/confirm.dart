@@ -7,7 +7,7 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:serverlesschat/screens/home.dart';
+import '../../../screens/home.dart';
 
 // ignore: use_key_in_widget_constructors
 class ConfirmScreen extends StatefulWidget {

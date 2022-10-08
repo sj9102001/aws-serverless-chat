@@ -1,18 +1,20 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:amplify_analytics_pinpoint/amplify_analytics_pinpoint.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:provider/provider.dart';
-import 'package:serverlesschat/providers/chats.dart';
-import 'package:serverlesschat/providers/users.dart';
-import 'package:serverlesschat/providers/websocket_provider.dart';
-import 'package:serverlesschat/screens/app/chat/chat.dart';
 
-import '../../amplifyconfiguration.dart';
+import 'providers/chats.dart';
+import 'providers/friends.dart';
+import 'providers/users.dart';
+import 'providers/websocket_provider.dart';
 
+import 'amplifyconfiguration.dart';
+
+import 'screens/app/add_friend/user_profile_page.dart';
 import 'screens/authentication/confirm_reset.dart';
+import 'screens/app/chat/chat.dart';
 import 'screens/home.dart';
 import 'screens/authentication/login.dart';
 import 'screens/authentication/confirm.dart';
@@ -61,6 +63,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (ctx) => Users()),
         ChangeNotifierProvider(create: (ctx) => WebsocketProvider()),
         ChangeNotifierProvider(create: (ctx) => Chats()),
+        ChangeNotifierProvider(create: (ctx) => Friends()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -82,7 +85,8 @@ class _MyAppState extends State<MyApp> {
           ConfirmScreen.routeName: (ctx) => ConfirmScreen(),
           ConfirmResetScreen.routeName: (ctx) => ConfirmResetScreen(),
           HomeScreen.routeName: (ctx) => HomeScreen(),
-          ChatScreen.routeName: (ctx) => ChatScreen()
+          ChatScreen.routeName: (ctx) => ChatScreen(),
+          UserProfilePage.routeName: (ctx) => const UserProfilePage()
         },
       ),
     );
