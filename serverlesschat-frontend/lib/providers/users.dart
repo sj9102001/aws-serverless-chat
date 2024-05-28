@@ -17,7 +17,7 @@ class Users with ChangeNotifier {
   Future<List<User>> searchUsers(String query) async {
     try {
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/search-users/$query');
+          'https://.execute-api.us-east-1.amazonaws.com/test/search-users/$query');
       log('Making API Call - /search-users');
       List<User> searchedUsersList = [];
       final response = await http.get(url);
@@ -46,7 +46,7 @@ class Users with ChangeNotifier {
   Future<void> fetchCurrentUserDetails() async {
     try {
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/user-details');
+          'https://.execute-api.us-east-1.amazonaws.com/test/user-details');
       log('Making API Call - /user-details');
       final currentUser = await Amplify.Auth.getCurrentUser();
       final currentUserId = currentUser.userId;
@@ -75,7 +75,7 @@ class Users with ChangeNotifier {
   Future<void> updateUserInformation(String name, String bio) async {
     try {
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/update-user');
+          'https://.execute-api.us-east-1.amazonaws.com/test/update-user');
       final response = await http.post(url,
           body: json.encode(
               {'UserId': _loggedInUser!.userId, 'Name': name, 'Bio': bio}));
