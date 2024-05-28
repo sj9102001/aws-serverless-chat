@@ -16,7 +16,7 @@ class WebsocketProvider with ChangeNotifier {
   Future<void> connectToWs() async {
     Amplify.Auth.getCurrentUser().then((user) {
       String wssUrl =
-          // "wss://4c308wjsbk.execute-api.us-east-1.amazonaws.com/dev?userId=${user.userId}";
+          // "wss://.execute-api.us-east-1.amazonaws.com/dev?userId=${user.userId}";
           "wss://ws.postman-echo.com/raw";
 
       final connection = WebSocket.connect(wssUrl);
