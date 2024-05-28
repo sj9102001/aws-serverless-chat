@@ -29,7 +29,7 @@ class Friends extends ChangeNotifier {
       //imp
       final userInfo = await Amplify.Auth.getCurrentUser();
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/send-friend-request');
+          'https://.execute-api.us-east-1.amazonaws.com/test/send-friend-request');
       log('Making API Call - /send-friend-request');
       final response = await http.post(
         url,
@@ -59,7 +59,7 @@ class Friends extends ChangeNotifier {
       //imp
       final userInfo = await Amplify.Auth.getCurrentUser();
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/accept-friend-request');
+          'https://.execute-api.us-east-1.amazonaws.com/test/accept-friend-request');
       log('Making API Call - /accept-friend-request');
       final response = await http.post(
         url,
@@ -91,7 +91,7 @@ class Friends extends ChangeNotifier {
     try {
       final currentUserInfo = await Amplify.Auth.getCurrentUser();
       final url = Uri.parse(
-          'https://lvj1vr6se3.execute-api.us-east-1.amazonaws.com/test/fetch-friends');
+          'https://.execute-api.us-east-1.amazonaws.com/test/fetch-friends');
       log('Making API Call - /fetch-users');
       final response = await http.post(url,
           body: json.encode({"UserId": currentUserInfo.userId}));
